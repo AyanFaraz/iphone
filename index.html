@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>iPhone Models - IBlue</title>
+    <link rel="icon" type="image/png" href="../logo.jpeg"> 
+</head>
+<body>
+    <header>
+        <div id="divstate">
+            <h1 id="state">IBlue</h1>
+        </div>
+        <hr>
+    </header>
+    <main id="phones-container">
+        <!-- Phones will be loaded here dynamically -->
+    </main>
+    <footer>
+        <div id="sponsor-div">
+            <p id="sponsor">&copy; 2025 Website by <strong>@Chikus</strong></p>
+        </div>
+    </footer>
+    <script>
+        // Function to load and display phones
+        async function loadPhones() {
+            try {
+                // Try to load from localStorage first
+                let phones = JSON.parse(localStorage.getItem('phones')) || [];
+                
+                // If no phones in localStorage, try to load from phones.json
+                if (phones.length === 0) {
+                    try {
+                        const response = await fetch('../phones.json');
+                        if (!response.ok) {
+                            throw new Error('Failed to load phones.json');
+                        }
+                        phones = await response.json();
+                    } catch (error) {
+                        console.error('Error loading phones.json:', error);
+                        document.getElementById('phones-container').innerHTML = '<p>Error loading phones. Please try again later.</p>';
+                        return;
+                    }
+                }
+
+                // Filter iPhone phones
+                const iphonePhones = phones.filter(phone => phone.category === 'iphone');
+                
+                if (iphonePhones.length === 0) {
+                    document.getElementById('phones-container').innerHTML = '<p>No iPhone models available at the moment.</p>';
+                    return;
+                }
+
+                // Display phones
+                const container = document.getElementById('phones-container');
+                container.innerHTML = iphonePhones.map(phone => `
+                    <h1 class="phone-name">${phone.name}</h1>
+                    <div class="phone-description">
+                        <p>${phone.description}</p>
+                    </div>
+                    <div class="phone-price">
+                        <p>Price: $${phone.price}</p>
+                    </div>
+                    <div class="phone-image-container">
+                        <img class="phone-image" src="${phone.image}" alt="${phone.name}" onerror="this.src='../imgs/iphone.jpeg'">
+                    </div>
+                    <div class="phone-button-container">
+                        <button class="phone-button" data-phone="${phone.name}" onclick="sendWhatsAppMessage(this)">Buy Now</button>
+                    </div>
+                    <hr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading phones:', error);
+                document.getElementById('phones-container').innerHTML = '<p>Error loading phones. Please try again later.</p>';
+            }
+        }
+
+        // Load phones when the page loads
+        document.addEventListener('DOMContentLoaded', loadPhones);
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
